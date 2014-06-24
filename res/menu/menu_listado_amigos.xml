@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/refresh"
+          android:title="Refrescar lista"/>
+    <item android:id="@+id/compartir"
+          android:title="Compartir MeetUs!"/>
+    <item android:id="@+id/opciones"
+          android:title="Opciones" />
+    <item android:id="@+id/salir"
+          android:title="Salir" />
+</menu>
