@@ -78,6 +78,9 @@ public class ListadoUsuariosConectados extends Activity {
 
 		// Bind the Array Adapter to the List View
 		myListView.setAdapter(aa);
+	
+		ListView lv = (ListView)findViewById(R.id.myListView);
+	    lv.setVisibility((aa.isEmpty())?View.GONE:View.VISIBLE); 
 		// Item Click Listener the listview
 		myListView.setOnItemClickListener(new ListView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int pos,
@@ -93,7 +96,7 @@ public class ListadoUsuariosConectados extends Activity {
 
 				Herramientas.setTu(new Usuarios(nombreTu, idTu));
 				push.setChannel("a" + Herramientas.getTu().id);
-				push.setData(obj);
+				//push.setData(obj);
 				
 				push.setMessage(Herramientas.getYo().nombre
 						+ " quiere ver por donde andas!");
@@ -154,8 +157,13 @@ public class ListadoUsuariosConectados extends Activity {
 	protected void onResume() {
 		super.onResume();
 		// Borrar Posicion y poner elUsuarioEstaActivo a false
-		Herramientas.borrarPosicion();
-		Herramientas.setElUsuarioEstaActivo(false);
+		try{
+			Herramientas.borrarPosicion();
+			Herramientas.setElUsuarioEstaActivo(false);
+		}
+		catch(Exception e){
+			
+		}
 	}
 
 	@Override
@@ -216,8 +224,8 @@ public class ListadoUsuariosConectados extends Activity {
 	private void lanzarDialogoInvitar() {
 
 		Bundle params = new Bundle();
-		params.putString("message",
-				"Learn how to make your Android apps social");
+		params.putString("meetUs",
+				getResources().getString(R.string.invitar));
 		WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(this,
 				Herramientas.getFacebook().getSession(), params))
 				.setOnCompleteListener(new OnCompleteListener() {

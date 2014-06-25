@@ -67,4 +67,21 @@ public class PreMapa extends Activity {
 		}
 	}
 
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		Intent i;
+		if (!Herramientas.getVieneDelMapa())
+		{
+			i = new Intent(PreMapa.this, MainActivity.class);
+		}
+		else
+		{
+			i = new Intent(PreMapa.this, ListadoUsuariosConectados.class);
+		}
+		startActivity(i);
+	}
+	
+	
+
 }

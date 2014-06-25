@@ -36,6 +36,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.util.Log;
@@ -374,8 +376,10 @@ public class Herramientas {
 							&& elUsuarioEstaActivo) {
 						((MainActivity) contexto).runOnUiThread(new Runnable() {
 							public void run() {
-								Toast.makeText(contexto,
-										contexto.getResources().getString(R.string.desconectado),
+								Toast.makeText(
+										contexto,
+										contexto.getResources().getString(
+												R.string.desconectado),
 										Toast.LENGTH_LONG).show();
 								Intent i = new Intent(contexto,
 										ListadoUsuariosConectados.class);
@@ -392,9 +396,11 @@ public class Herramientas {
 
 								AlertDialog.Builder builder = new AlertDialog.Builder(
 										contexto);
-								builder.setMessage(contexto.getResources().getString(R.string.usuario_ausente));
+								builder.setMessage(contexto.getResources()
+										.getString(R.string.usuario_ausente));
 								builder.setCancelable(false);
-								builder.setPositiveButton(contexto.getResources().getString(R.string.si),
+								builder.setPositiveButton(contexto
+										.getResources().getString(R.string.si),
 										new DialogInterface.OnClickListener() {
 											public void onClick(
 													DialogInterface dialog,
@@ -407,7 +413,8 @@ public class Herramientas {
 											}
 										});
 
-								builder.setNegativeButton(contexto.getResources().getString(R.string.no),
+								builder.setNegativeButton(contexto
+										.getResources().getString(R.string.no),
 										new DialogInterface.OnClickListener() {
 											public void onClick(
 													DialogInterface dialog,
@@ -697,7 +704,7 @@ public class Herramientas {
 						Boolean exito = Herramientas
 								.parsearPosicionTuya(resultJson);
 
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -752,10 +759,12 @@ public class Herramientas {
 
 			ringProgressDialogMapa = new AlertDialog.Builder(contexto);
 
-			ringProgressDialogMapa.setMessage(contexto.getResources().getString(R.string.Localizando));
+			ringProgressDialogMapa.setMessage(contexto.getResources()
+					.getString(R.string.Localizando));
 			ringProgressDialogMapa.setCancelable(false);
 
-			ringProgressDialogMapa.setNegativeButton(contexto.getResources().getString(R.string.cancelar),
+			ringProgressDialogMapa.setNegativeButton(contexto.getResources()
+					.getString(R.string.cancelar),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							dialog.cancel();
@@ -791,5 +800,23 @@ public class Herramientas {
 			alert.cancel();
 		}
 
+	}
+
+
+	public static Boolean comprobaciones(Context contexto) {
+
+		// Comprobar Internet
+		ConnectivityManager cm = (ConnectivityManager) contexto
+				.getSystemService(contexto.CONNECTIVITY_SERVICE);
+
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+
+		Toast.makeText(contexto, contexto.getResources().getString(R.string.no_internet),
+				Toast.LENGTH_LONG).show();
+		return false;
 	}
 }

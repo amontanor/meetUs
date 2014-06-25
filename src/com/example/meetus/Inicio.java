@@ -7,6 +7,8 @@ import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Toast;
 
 public class Inicio extends Activity {
 
@@ -27,6 +30,11 @@ public class Inicio extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
+		
+		Boolean seguir = Herramientas.comprobaciones(this);
+		
+		if (seguir)
+		{
 		Boolean esLaPrimeraVez = comprobarSiEsLaPrimeraVez();
 		if (esLaPrimeraVez) {
 			Herramientas.cambiarEsLaPrimeraVezANo(Inicio.this);
@@ -39,7 +47,14 @@ public class Inicio extends Activity {
 					ListadoUsuariosConectados.class);
 			esperarDosSegundos(i);
 		}
+		}
+		else
+		{
+			esperarCuatroSegundosSalir();
+		}
 	}
+
+	
 
 	@Override
 	protected void onRestart() {
@@ -94,6 +109,26 @@ public class Inicio extends Activity {
 		}).start();
 		
 	}
+	
+	//Tiempo que se muestra al inicio el logo
+		private void esperarCuatroSegundosSalir() {
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(4000);
+						Intent finishapp = new Intent(Intent.ACTION_MAIN);
+						finishapp.addCategory(Intent.CATEGORY_HOME);
+						finishapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(finishapp);
+					} catch (Exception e) {
+
+					}
+				}
+			}).start();
+			
+		}
 
 	private void recuperarUsuariosBaseDeDatos() {
 		UsuariosSQLiteHelper usdbh = new UsuariosSQLiteHelper(this,
