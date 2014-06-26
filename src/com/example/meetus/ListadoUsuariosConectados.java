@@ -85,8 +85,6 @@ public class ListadoUsuariosConectados extends Activity {
 		myListView.setOnItemClickListener(new ListView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int pos,
 					long id) {
-				JSONObject obj = new JSONObject();
-
 				String nombreTu = ((Usuarios) parent.getItemAtPosition(pos)).nombre;
 				String idTu = ((Usuarios) parent.getItemAtPosition(pos)).id;
 
@@ -95,31 +93,33 @@ public class ListadoUsuariosConectados extends Activity {
 				// Comprobar si el usuario esta activo
 
 				Herramientas.setTu(new Usuarios(nombreTu, idTu));
-				push.setChannel("a" + Herramientas.getTu().id);
+				
 				//push.setData(obj);
 				
-				push.setMessage(Herramientas.getYo().nombre
+				/*push.setMessage(Herramientas.getYo().nombre
 						+ " quiere ver por donde andas!");
-				push.setExpirationTime(15000);
+				push.setExpirationTime(15000);*/
 				try {
+					
+					//JSONObject data = new JSONObject("{\"alert\": \"The Mets scored!\"}");
+					JSONObject data = new JSONObject();
+                    push.setChannel("a" + Herramientas.getTu().id);
+                    data.put("action","com.example.meetus.UPDATE_STATUS");
+					push.setData(data);
+					push.sendInBackground();
+									
+					
 					// Enviar mi id al otro usuario
 					resultJson = Herramientas.jsonLoad("a",
 							"http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=6&idYo="
 									+ Herramientas.getYo().id + "&idTu="
 									+ Herramientas.getTu().id);
-					obj.put("id", Herramientas.getYo().id);
-					//push.setData(obj);
-					push.send();
-
 					// Variables para comprobar si ya nos ha localizado a ambos
 					Herramientas.setEncontradoTu(false);
 					Herramientas.setEncontradoYo(false);
 					Intent i = new Intent(ListadoUsuariosConectados.this,
 							MainActivity.class);
 					startActivity(i);
-				} catch (ParseException e) {
-					// TODO
-					e.printStackTrace();
 				} catch (Exception e) {
 					// TODO
 					e.printStackTrace();
@@ -157,12 +157,11 @@ public class ListadoUsuariosConectados extends Activity {
 	protected void onResume() {
 		super.onResume();
 		// Borrar Posicion y poner elUsuarioEstaActivo a false
-		try{
+		try {
 			Herramientas.borrarPosicion();
 			Herramientas.setElUsuarioEstaActivo(false);
-		}
-		catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 	}
 
@@ -224,8 +223,7 @@ public class ListadoUsuariosConectados extends Activity {
 	private void lanzarDialogoInvitar() {
 
 		Bundle params = new Bundle();
-		params.putString("meetUs",
-				getResources().getString(R.string.invitar));
+		params.putString("meetUs", getResources().getString(R.string.invitar));
 		WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(this,
 				Herramientas.getFacebook().getSession(), params))
 				.setOnCompleteListener(new OnCompleteListener() {
@@ -238,12 +236,18 @@ public class ListadoUsuariosConectados extends Activity {
 							requestId = values.getString("request");
 						}
 						if (requestId != null) {
-							Toast.makeText(ListadoUsuariosConectados.this,
-									getResources().getString(R.string.facebook_peticion_exito), Toast.LENGTH_SHORT).show();
+							Toast.makeText(
+									ListadoUsuariosConectados.this,
+									getResources().getString(
+											R.string.facebook_peticion_exito),
+									Toast.LENGTH_SHORT).show();
 						} else {
-							Toast.makeText(ListadoUsuariosConectados.this,
-									getResources().getString(R.string.facebook_peticion_cancelada), Toast.LENGTH_SHORT)
-									.show();
+							Toast.makeText(
+									ListadoUsuariosConectados.this,
+									getResources()
+											.getString(
+													R.string.facebook_peticion_cancelada),
+									Toast.LENGTH_SHORT).show();
 						}
 					}
 				}).build();
@@ -386,12 +390,11 @@ public class ListadoUsuariosConectados extends Activity {
 		Parse.initialize(this, "PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
 				"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
 
-		// Subscribirse a su propio canal
-		PushService.unsubscribe(getApplicationContext(),
-				"a" + Herramientas.getYo().id);
-
+		if (PushService.getSubscriptions(getApplicationContext()).isEmpty())
+		{
 		PushService.subscribe(getApplicationContext(),
 				"a" + Herramientas.getYo().id, PreMapa.class);
+		}
 
 	}
 

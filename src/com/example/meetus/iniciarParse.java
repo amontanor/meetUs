@@ -19,11 +19,11 @@ public class iniciarParse extends Application{
 					"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
 
 			// Subscribirse a su propio canal
-			PushService.unsubscribe(getApplicationContext(),
-					"a" + Herramientas.getYo().id);
-
+			if (PushService.getSubscriptions(getApplicationContext()).isEmpty())
+			{
 			PushService.subscribe(getApplicationContext(),
 					"a" + Herramientas.getYo().id, PreMapa.class);
+			}
 	    }
 
 	}
