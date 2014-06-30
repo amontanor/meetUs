@@ -22,6 +22,7 @@ public class PreMapa extends Activity {
 		if (!Herramientas.getVieneDelMapa())
 		{
 			i = new Intent(PreMapa.this, MainActivity.class);
+			Herramientas.mandarUsuarioAcepta();
 		}
 		else
 		{

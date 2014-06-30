@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +35,6 @@ import com.facebook.android.FacebookError;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.parse.Parse;
-import com.parse.ParseException;
 import com.parse.ParsePush;
 import com.parse.PushService;
 
@@ -44,6 +45,10 @@ public class ListadoUsuariosConectados extends Activity {
 	private Facebook facebook;
 	private SharedPreferences sp;
 	private String access_token;
+	private Boolean cancelado = false;
+
+	// Create the Array Adapter to bind the array to the List View
+	ArrayAdapter<Usuarios> aa;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -58,12 +63,15 @@ public class ListadoUsuariosConectados extends Activity {
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_listado_usuarios_conectados);
 
-		// Se guarda que NO hemos estado en el mapa. Sirve para que al volver a
+		// Se guarda que NO hemos estado en el mapa. Sirve para que al
+		// volver a
 		// premapa nos mande a listaDeAmigos
 		Herramientas.setVieneDelMapa(false);
 
 		// Inicializar Parse
-		inicializaParse();
+		if (!Herramientas.getParseInicializado()) {
+			inicializaParse();
+		}
 
 		// Guardamos el contexto
 		Herramientas.setContexto(this);
@@ -71,61 +79,99 @@ public class ListadoUsuariosConectados extends Activity {
 		ListView myListView = (ListView) findViewById(R.id.myListView);
 		// Create the Array List of to do items
 
-		// Create the Array Adapter to bind the array to the List View
-		final ArrayAdapter<Usuarios> aa;
 		aa = new listadoUsuariosAdapter(this, R.layout.usuariolist_item,
 				Herramientas.getListaUsuarios());
 
 		// Bind the Array Adapter to the List View
 		myListView.setAdapter(aa);
-	
-		ListView lv = (ListView)findViewById(R.id.myListView);
-	    lv.setVisibility((aa.isEmpty())?View.GONE:View.VISIBLE); 
+
+		ListView lv = (ListView) findViewById(R.id.myListView);
+		lv.setVisibility((aa.isEmpty()) ? View.GONE : View.VISIBLE);
 		// Item Click Listener the listview
 		myListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+			private EjecturarEsperaPeticion ejecturarEsperaPeticion = null;
+
 			public void onItemClick(AdapterView<?> parent, View view, int pos,
 					long id) {
-				String nombreTu = ((Usuarios) parent.getItemAtPosition(pos)).nombre;
-				String idTu = ((Usuarios) parent.getItemAtPosition(pos)).id;
+				if (((Usuarios) parent.getItemAtPosition(pos)).estado
+						.equals("online")) {
+					String nombreTu = ((Usuarios) parent.getItemAtPosition(pos)).nombre;
+					String idTu = ((Usuarios) parent.getItemAtPosition(pos)).id;
 
-				ParsePush push = new ParsePush();
-				
-				// Comprobar si el usuario esta activo
+					ParsePush push = new ParsePush();
 
-				Herramientas.setTu(new Usuarios(nombreTu, idTu));
-				
-				//push.setData(obj);
-				
-				/*push.setMessage(Herramientas.getYo().nombre
-						+ " quiere ver por donde andas!");
-				push.setExpirationTime(15000);*/
-				try {
-					
-					//JSONObject data = new JSONObject("{\"alert\": \"The Mets scored!\"}");
-					JSONObject data = new JSONObject();
-                    push.setChannel("a" + Herramientas.getTu().id);
-                    data.put("action","com.example.meetus.UPDATE_STATUS");
-					push.setData(data);
-					push.sendInBackground();
-									
-					
-					// Enviar mi id al otro usuario
-					resultJson = Herramientas.jsonLoad("a",
-							"http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=6&idYo="
-									+ Herramientas.getYo().id + "&idTu="
-									+ Herramientas.getTu().id);
-					// Variables para comprobar si ya nos ha localizado a ambos
-					Herramientas.setEncontradoTu(false);
-					Herramientas.setEncontradoYo(false);
-					Intent i = new Intent(ListadoUsuariosConectados.this,
-							MainActivity.class);
-					startActivity(i);
-				} catch (Exception e) {
-					// TODO
-					e.printStackTrace();
+					// Comprobar si el usuario esta activo
+
+					Herramientas.setTu(new Usuarios(nombreTu, idTu));
+
+					try {
+
+						// JSONObject data = new
+						// JSONObject("{\"alert\": \"The Mets scored!\"}");
+						JSONObject data = new JSONObject();
+						push.setChannel("a" + Herramientas.getTu().id);
+						data.put("action", "com.example.meetus.UPDATE_STATUS");
+						data.put("nombre", Herramientas.getYo().nombre);
+						push.setData(data);
+						push.sendInBackground();
+
+						// Enviar mi id al otro usuario
+						resultJson = Herramientas.jsonLoad("a",
+								"http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=6&idYo="
+										+ Herramientas.getYo().id + "&idTu="
+										+ Herramientas.getTu().id);
+						// Variables para comprobar si ya nos ha
+						// localizado a
+						// ambos
+						Herramientas.setEncontradoTu(false);
+						Herramientas.setEncontradoYo(false);
+
+						Herramientas.setEsperandoUsuario(true);
+
+						if (ejecturarEsperaPeticion == null) {
+							ejecturarEsperaPeticion = new EjecturarEsperaPeticion();
+						} else {
+							ejecturarEsperaPeticion.cancel(true);
+							ejecturarEsperaPeticion = new EjecturarEsperaPeticion();
+						}
+						ejecturarEsperaPeticion
+								.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+					} catch (Exception e) {
+						// TODO
+						e.printStackTrace();
+					}
+				} else if (((Usuarios) parent.getItemAtPosition(pos)).estado
+						.equals("offline")) {
+					Toast.makeText(ListadoUsuariosConectados.this,
+							getResources().getString(R.string.usuarioOffline),
+							Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
+
+		Toast.makeText(ListadoUsuariosConectados.this,
+				getResources().getString(R.string.comprobandoEstado),
+				Toast.LENGTH_LONG).show();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					comprobarEstados();
+				} catch (Exception e) {
+				}
+			}
+		}).start();
+
+	}
+
+	private void comprobarEstados() {
+
+		for (int i = 0; i < Herramientas.getListaUsuarios().size(); i++) {
+			Herramientas.mandarMensajeDeEstadoActual(Herramientas
+					.getListaUsuarios().get(i).id);
+		}
 
 	}
 
@@ -223,7 +269,7 @@ public class ListadoUsuariosConectados extends Activity {
 	private void lanzarDialogoInvitar() {
 
 		Bundle params = new Bundle();
-		params.putString("meetUs", getResources().getString(R.string.invitar));
+		params.putString("message", getResources().getString(R.string.invitar));
 		WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(this,
 				Herramientas.getFacebook().getSession(), params))
 				.setOnCompleteListener(new OnCompleteListener() {
@@ -385,17 +431,99 @@ public class ListadoUsuariosConectados extends Activity {
 
 	}
 
+	private class EjecturarEsperaPeticion extends AsyncTask<String, Void, Void> {
+
+		private Builder ringProgressDialog;
+		private AlertDialog alert;
+
+		public EjecturarEsperaPeticion() {
+
+		}
+
+		protected void onPreExecute() {
+			super.onPreExecute();
+			// Cargamos el mensaje de espera
+			setCancelado(false);
+
+			ringProgressDialog = new AlertDialog.Builder(
+					ListadoUsuariosConectados.this);
+
+			ringProgressDialog.setMessage(getResources().getString(
+					R.string.esperandoRespuesta));
+			ringProgressDialog.setCancelable(false);
+
+			ringProgressDialog.setNegativeButton(
+					getResources().getString(R.string.cancelar),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+							Herramientas.setEsperandoUsuario(false);
+							setCancelado(true);
+						}
+					});
+
+			alert = ringProgressDialog.create();
+
+			alert.show();
+		}
+
+		/**
+		 * The system calls this to perform work in a worker thread and delivers
+		 * it the parameters given to AsyncTask.execute()
+		 */
+
+		protected Void doInBackground(String... valores) {
+			while (Herramientas.getEsperandoUsuario()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			Herramientas.setEsperandoUsuario(true);
+			return null;
+		}
+
+		protected void onPostExecute(Void result) {
+			alert.cancel();
+			if (!cancelado) {
+				Herramientas.setEsperandoUsuario(false);
+				Intent i = new Intent(ListadoUsuariosConectados.this,
+						MainActivity.class);
+				startActivity(i);
+			}
+		}
+	}
+
 	private void inicializaParse() {
 
 		Parse.initialize(this, "PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
 				"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
 
-		if (PushService.getSubscriptions(getApplicationContext()).isEmpty())
-		{
-		PushService.subscribe(getApplicationContext(),
-				"a" + Herramientas.getYo().id, PreMapa.class);
+		if (PushService.getSubscriptions(getApplicationContext()).isEmpty()) {
+			PushService.subscribe(getApplicationContext(),
+					"a" + Herramientas.getYo().id, PreMapa.class);
 		}
 
 	}
 
+	public Boolean getCancelado() {
+		return cancelado;
+	}
+
+	public void setCancelado(Boolean cancelado) {
+		this.cancelado = cancelado;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		Intent finishapp = new Intent(Intent.ACTION_MAIN);
+		finishapp.addCategory(Intent.CATEGORY_HOME);
+		finishapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(finishapp);
+		return true;
+
+	}
+	
 }

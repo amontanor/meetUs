@@ -1,11 +1,10 @@
 package com.example.meetus;
 
-import java.util.Timer;
-
 import android.app.ProgressDialog;
-import android.os.AsyncTask;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.KeyEvent;
 import android.view.Window;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -83,5 +82,25 @@ public class MainActivity extends FragmentActivity {
 
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if (keyCode == KeyEvent.KEYCODE_BACK && Herramientas.getReiniciadoMovil()) {
+	    	Herramientas.setReiniciadoMovil(false);
+	    	Intent tabi=new Intent(getApplicationContext(),Inicio.class);
+	    	tabi.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	    	startActivity(tabi);
+	        finish();
+	        super.onKeyDown(keyCode, event);
+	        return true;
+	    }
+	    else{
+	    	Intent tabi=new Intent(getApplicationContext(),ListadoUsuariosConectados.class);
+	    	tabi.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	    	startActivity(tabi);
+	        finish();
+	        super.onKeyDown(keyCode, event);
+	        return true;
+	    }
+	}
 	
 }

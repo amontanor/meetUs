@@ -93,7 +93,8 @@ public class PosicionMia {
 			toast1.show();
 		}
 		
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
 	}
 
 	public static void pararGps(){
@@ -104,7 +105,8 @@ public class PosicionMia {
 	}
 	
 	public static void arrancarGps(){
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
 	}
 	
 	private static PosicionMia Posicion() {

@@ -35,7 +35,9 @@
     <string name="no_internet">Conexión a Internet perdida!</string>
     <string name="listaVacia">No se han encontrado amigos con meetUs, compártela y empieza a disfrutarla hoy mismo!</string>
     <string name="invitar">descárgate meetUs y estaremos en contacto!</string>
-    
-    
+    <string name="usuarioOffline">El usuario parece desconectado!</string>
+    <string name="comprobandoEstado">Buscando usuarios online...</string>
+    <string name="aceptarSolicitud">aceptar solicitud de </string>
+    <string name="esperandoRespuesta">Esperando respuesta...</string>
 
 </resources>

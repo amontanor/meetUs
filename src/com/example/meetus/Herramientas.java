@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
@@ -41,6 +42,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.android.Facebook;
@@ -49,6 +52,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParsePush;
 
 public class Herramientas {
 
@@ -67,6 +71,17 @@ public class Herramientas {
 	private static Boolean estasRefrescando = false;
 	private static Facebook facebook;
 	private static int opcionTiempoRespuesta = 2;
+	private static Boolean esperandoUsuario = false;
+	private static Boolean parseInicializado = false;
+	private static Boolean reiniciadoMovil = false;
+	
+	public static Boolean getEsperandoUsuario() {
+		return esperandoUsuario;
+	}
+
+	public static void setEsperandoUsuario(Boolean esperandoUsuario) {
+		Herramientas.esperandoUsuario = esperandoUsuario;
+	}
 
 	private static String access_token;
 	private static boolean encontradoYo, encontradoTu;
@@ -179,6 +194,81 @@ public class Herramientas {
 
 		ejecutarSnipperMapa = new ejecutarSnipperMapa();
 		ejecutarSnipperMapa.execute();
+
+	}
+
+	static void mandarMensajeDeEstadoActual(String id) {
+		JSONObject data = new JSONObject();
+		ParsePush push = new ParsePush();
+		push.setChannel("a" + id);
+		try {
+			data.put("action", "com.example.meetus.PREGUNTA_ESTADO");
+			data.put("id", Herramientas.getYo().id);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		push.setData(data);
+		push.sendInBackground();
+
+	}
+
+	static void mandarRespuestaDeEstadoActual(String id) {
+		JSONObject data = new JSONObject();
+		ParsePush push = new ParsePush();
+		push.setChannel("a" + id);
+		try {
+			data.put("action", "com.example.meetus.RESPUESTA_ESTADO");
+			data.put("id", Herramientas.getYo().id);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		push.setData(data);
+		push.sendInBackground();
+
+		for (int i = 0; i < Herramientas.getListaUsuarios().size(); i++) {
+			if (Herramientas.getListaUsuarios().get(i).id.equals(id)) {
+				Herramientas.getListaUsuarios().get(i).setEstado("online");
+				ListView myListView = (ListView) ((ListadoUsuariosConectados) contexto)
+						.findViewById(R.id.myListView);
+				((ListadoUsuariosConectados) contexto).aa
+						.notifyDataSetChanged();
+
+			}
+		}
+
+	}
+
+	static void mandarMensajeDesconectado(String id) {
+		JSONObject data = new JSONObject();
+		ParsePush push = new ParsePush();
+
+		for (int i = 0; i < Herramientas.getListaUsuarios().size(); i++) {
+			push.setChannel("a" + Herramientas.getListaUsuarios().get(i).id);
+			try {
+				data.put("action", "com.example.meetus.DESCONECTADO");
+				data.put("id", Herramientas.getYo().id);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			push.setData(data);
+			push.sendInBackground();
+		}
+
+	}
+
+	static void mandarUsuarioAcepta() {
+		JSONObject data = new JSONObject();
+		ParsePush push = new ParsePush();
+		push.setChannel("a" + Herramientas.getTu().id);
+		try {
+			data.put("action", "com.example.meetus.ACEPTA");
+			data.put("id", Herramientas.getYo().id);
+			push.setData(data);
+			push.sendInBackground();
+		} catch (JSONException e) {
+			e.printStackTrace();
+			
+		}
 
 	}
 
@@ -802,7 +892,6 @@ public class Herramientas {
 
 	}
 
-
 	public static Boolean comprobaciones(Context contexto) {
 
 		// Comprobar Internet
@@ -815,8 +904,39 @@ public class Herramientas {
 			return true;
 		}
 
-		Toast.makeText(contexto, contexto.getResources().getString(R.string.no_internet),
+		Toast.makeText(contexto,
+				contexto.getResources().getString(R.string.no_internet),
 				Toast.LENGTH_LONG).show();
 		return false;
+	}
+
+	public static void RecibirRespuestaDeEstadoActual(String id, String estado) {
+		for (int i = 0; i < Herramientas.getListaUsuarios().size(); i++) {
+			if (Herramientas.getListaUsuarios().get(i).id.equals(id)) {
+				Herramientas.getListaUsuarios().get(i).setEstado(estado);
+				ListView myListView = (ListView) ((ListadoUsuariosConectados) contexto)
+						.findViewById(R.id.myListView);
+				((ListadoUsuariosConectados) contexto).aa
+						.notifyDataSetChanged();
+
+			}
+		}
+
+	}
+
+	public static Boolean getParseInicializado() {
+		return parseInicializado;
+	}
+
+	public static void setParseInicializado(Boolean parseInicializado) {
+		Herramientas.parseInicializado = parseInicializado;
+	}
+
+	public static Boolean getReiniciadoMovil() {
+		return reiniciadoMovil;
+	}
+
+	public static void setReiniciadoMovil(Boolean reiniciadoMovil) {
+		Herramientas.reiniciadoMovil = reiniciadoMovil;
 	}
 }

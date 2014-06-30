@@ -487,8 +487,10 @@ containing a value of this type.
         public static final int common_signin_btn_light_text_disabled=0x7f07000d;
         public static final int common_signin_btn_light_text_focused=0x7f07000e;
         public static final int common_signin_btn_light_text_pressed=0x7f07000c;
-        public static final int common_signin_btn_text_dark=0x7f070020;
-        public static final int common_signin_btn_text_light=0x7f070021;
+        public static final int common_signin_btn_text_dark=0x7f070022;
+        public static final int common_signin_btn_text_light=0x7f070023;
+        public static final int green=0x7f070020;
+        public static final int red=0x7f070021;
         public static final int wallet_bright_foreground_disabled_holo_light=0x7f070016;
         /** 
          Wallet colors to support consistent Wallet fragment holo dark UI in client application
@@ -507,8 +509,8 @@ containing a value of this type.
         public static final int wallet_hint_foreground_holo_light=0x7f070018;
         public static final int wallet_holo_blue_light=0x7f07001c;
         public static final int wallet_link_text_light=0x7f07001d;
-        public static final int wallet_primary_text_holo_light=0x7f070022;
-        public static final int wallet_secondary_text_holo_dark=0x7f070023;
+        public static final int wallet_primary_text_holo_light=0x7f070024;
+        public static final int wallet_secondary_text_holo_dark=0x7f070025;
         public static final int white=0x7f07001f;
     }
     public static final class dimen {
@@ -553,7 +555,7 @@ containing a value of this type.
         public static final int com_facebook_list_section_header_background=0x7f02000d;
         public static final int com_facebook_loginbutton_silver=0x7f02000e;
         public static final int com_facebook_logo=0x7f02000f;
-        public static final int com_facebook_picker_default_separator_color=0x7f020049;
+        public static final int com_facebook_picker_default_separator_color=0x7f02004c;
         public static final int com_facebook_picker_item_background=0x7f020010;
         public static final int com_facebook_picker_list_focused=0x7f020011;
         public static final int com_facebook_picker_list_longpressed=0x7f020012;
@@ -604,16 +606,19 @@ containing a value of this type.
         public static final int common_signin_btn_text_pressed_light=0x7f02003f;
         public static final int estilo_boton_redondeada=0x7f020040;
         public static final int fondo_inicio=0x7f020041;
-        public static final int ic_launcher=0x7f020042;
-        public static final int ic_plusone_medium_off_client=0x7f020043;
-        public static final int ic_plusone_small_off_client=0x7f020044;
-        public static final int ic_plusone_standard_off_client=0x7f020045;
-        public static final int ic_plusone_tall_off_client=0x7f020046;
-        public static final int powered_by_google_dark=0x7f020047;
-        public static final int powered_by_google_light=0x7f020048;
+        public static final int ic_action_accept=0x7f020042;
+        public static final int ic_action_cancel=0x7f020043;
+        public static final int ic_action_remove=0x7f020044;
+        public static final int ic_launcher=0x7f020045;
+        public static final int ic_plusone_medium_off_client=0x7f020046;
+        public static final int ic_plusone_small_off_client=0x7f020047;
+        public static final int ic_plusone_standard_off_client=0x7f020048;
+        public static final int ic_plusone_tall_off_client=0x7f020049;
+        public static final int powered_by_google_dark=0x7f02004a;
+        public static final int powered_by_google_light=0x7f02004b;
     }
     public static final class id {
-        public static final int action_settings=0x7f050037;
+        public static final int action_settings=0x7f050038;
         public static final int book_now=0x7f050012;
         public static final int button1=0x7f050034;
         public static final int buyButton=0x7f05000c;
@@ -645,9 +650,10 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_login_button=0x7f050033;
         public static final int com_facebook_usersettingsfragment_logo_image=0x7f050031;
         public static final int com_facebook_usersettingsfragment_profile_name=0x7f050032;
-        public static final int compartir=0x7f050039;
+        public static final int compartir=0x7f05003a;
         public static final int container=0x7f050016;
         public static final int empty=0x7f050018;
+        public static final int estado=0x7f050037;
         public static final int foto=0x7f050035;
         public static final int grayscale=0x7f050014;
         public static final int holo_dark=0x7f050007;
@@ -661,11 +667,11 @@ containing a value of this type.
         public static final int nombre=0x7f050036;
         public static final int none=0x7f050003;
         public static final int normal=0x7f050001;
-        public static final int opciones=0x7f05003a;
+        public static final int opciones=0x7f05003b;
         public static final int picker_subtitle=0x7f050029;
         public static final int production=0x7f050009;
-        public static final int refresh=0x7f050038;
-        public static final int salir=0x7f05003b;
+        public static final int refresh=0x7f050039;
+        public static final int salir=0x7f05003c;
         public static final int sandbox=0x7f05000a;
         public static final int satellite=0x7f050004;
         public static final int selectionDetails=0x7f05000d;
@@ -730,6 +736,7 @@ containing a value of this type.
     }
     public static final class string {
         public static final int Localizando=0x7f080053;
+        public static final int aceptarSolicitud=0x7f08005e;
         public static final int action_settings=0x7f08003d;
         public static final int app_id=0x7f080049;
         public static final int app_label=0x7f08003b;
@@ -856,8 +863,10 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f080038;
+        public static final int comprobandoEstado=0x7f08005d;
         public static final int conx_perdida=0x7f080058;
         public static final int desconectado=0x7f080055;
+        public static final int esperandoRespuesta=0x7f08005f;
         public static final int facebook_peticion_cancelada=0x7f080057;
         public static final int facebook_peticion_exito=0x7f080056;
         public static final int gpsCambioStatus=0x7f08003f;
@@ -883,6 +892,7 @@ containing a value of this type.
         public static final int txtCargando=0x7f080045;
         public static final int txtTu=0x7f080044;
         public static final int txtYo=0x7f080043;
+        public static final int usuarioOffline=0x7f08005c;
         public static final int usuario_ausente=0x7f080050;
         /**  Text on a placeholder buy button when Google Play services is not
          available or up-to-date 

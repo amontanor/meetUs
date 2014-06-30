@@ -6,6 +6,14 @@ public class Usuarios {
 	String nombre;
 	String id;
 	Bitmap foto;
+	String estado;
+	
+	public String getEstado() {
+		return estado;
+	}
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
 	public String getNombre() {
 		return nombre;
 	}
@@ -29,6 +37,7 @@ public class Usuarios {
 		this.nombre = nombre;
 		this.id = id;
 		this.foto = foto;
+		this.estado = "offline";
 	}
 	public Usuarios(String nombre, String id) {
 		super();

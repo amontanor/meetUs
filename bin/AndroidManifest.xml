@@ -39,6 +39,7 @@
         android:required="true" />
 
     <application
+        android:name="com.example.meetus.iniciarParse"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
@@ -100,6 +101,10 @@
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.example.meetus.UPDATE_STATUS" />
+                <action android:name="com.example.meetus.RESPUESTA_ESTADO" />
+                <action android:name="com.example.meetus.PREGUNTA_ESTADO" />
+                <action android:name="com.example.meetus.DESCONECTADO" />
+                <action android:name="com.example.meetus.ACEPTA" />
             </intent-filter>
         </receiver>
 
@@ -124,6 +129,7 @@
             android:name="com.example.meetus.Salir"
             android:label="@string/title_activity_salir" >
         </activity>
+        
     </application>
 
 </manifest>

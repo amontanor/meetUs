@@ -81,20 +81,7 @@ public class Login extends Activity {
 	}
 
 	private void mostrarLogin() {
-
-		if (Herramientas.getEstasRefrescando()) {
-			try {
-				facebook.logout(Login.this);
-				Herramientas.setEstasRefrescando(false);
-			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
-		if (facebook.isSessionValid()) {
+		if (facebook.isSessionValid() && !Herramientas.getEstasRefrescando()) {
 
 		} else {
 			facebook.authorize(Login.this, new String[] { "user_friends" },
@@ -127,6 +114,16 @@ public class Login extends Activity {
 							Herramientas.setContexto(Login.this);
 							Herramientas
 									.arrancarProgressDialogLogin(Login.this);
+							//Poner estasRefrescando como falso
+							if (Herramientas.getEstasRefrescando()) {
+								try {
+									//facebook.logout(Login.this);
+									Herramientas.setEstasRefrescando(false);
+								} catch (Exception e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								} 
+							}
 						}
 
 						@Override

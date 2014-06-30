@@ -2,6 +2,7 @@
 <resources>
     <color name="color_fondo_boton_login">#56A4C5</color>
     <color name="white">#ffffff</color>
-
+	<color name="green">#04b404</color>
+	<color name="red">#610b0b</color>
     
 </resources>
