@@ -5,6 +5,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/fondo_inicio"
     android:screenOrientation="portrait"
-    tools:context="com.example.meetus.Inicio"
+    tools:context="dotidapp.meetus.Inicio"
     tools:ignore="MergeRootFrame" />
 

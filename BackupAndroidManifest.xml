@@ -40,11 +40,11 @@
             android:value="@string/app_id" />
 
         <activity
-            android:name="com.example.meetus.MainActivity"
+            android:name="dotidapp.meetus.MainActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.example.meetus.ListadoUsuariosConectados"
+            android:name="dotidapp.meetus.ListadoUsuariosConectados"
             android:label="@string/title_activity_listado_usuarios_conectados" >
         </activity>
         <activity
@@ -52,7 +52,7 @@
             android:label="Login facebook"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name="com.example.meetus.Login"
+            android:name="dotidapp.meetus.Login"
             android:label="@string/title_activity_login" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

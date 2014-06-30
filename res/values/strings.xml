@@ -34,7 +34,7 @@
     <string name="conx_perdida">Conexión Gps perdida!</string>
     <string name="no_internet">Conexión a Internet perdida!</string>
     <string name="listaVacia">No se han encontrado amigos con meetUs, compártela y empieza a disfrutarla hoy mismo!</string>
-    <string name="invitar">descárgate meetUs y estaremos en contacto!</string>
+    <string name="invitar">descárgate meetUs y estaremos en contacto! https://play.google.com/store/apps/details?id=dotidapp.meetus</string>
     <string name="usuarioOffline">El usuario parece desconectado!</string>
     <string name="comprobandoEstado">Buscando usuarios online...</string>
     <string name="aceptarSolicitud">aceptar solicitud de </string>
