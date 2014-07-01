@@ -519,12 +519,18 @@ public class ListadoUsuariosConectados extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Intent finishapp = new Intent(Intent.ACTION_MAIN);
-		finishapp.addCategory(Intent.CATEGORY_HOME);
-		finishapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(finishapp);
-		return true;
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			Intent finishapp = new Intent(Intent.ACTION_MAIN);
+			finishapp.addCategory(Intent.CATEGORY_HOME);
+			finishapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(finishapp);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 
 	}
-	
+
 }
