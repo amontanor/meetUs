@@ -1,14 +1,18 @@
 package dotidapp.meetus;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.AlertDialog.Builder;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,8 +30,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import dotidapp.meetus.R;
+
 import com.facebook.FacebookException;
 import com.facebook.android.DialogError;
 import com.facebook.android.Facebook;
@@ -74,6 +78,16 @@ public class ListadoUsuariosConectados extends Activity {
 			inicializaParse();
 		}
 
+		// Eliminamos la notificacion
+		if (Herramientas.getAlertaActiva()) {
+			NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			int tamano = Herramientas.getTu().id.length();
+			mNotificationManager.cancel(new Integer(Herramientas.getTu().id
+					.replace("a", "").substring(tamano - 6, tamano - 1)));
+			Herramientas.setAlertaActiva(false);
+			mandarNoAcepto();
+		}
+
 		// Guardamos el contexto
 		Herramientas.setContexto(this);
 
@@ -113,6 +127,7 @@ public class ListadoUsuariosConectados extends Activity {
 						push.setChannel("a" + Herramientas.getTu().id);
 						data.put("action", "dotidapp.meetus.UPDATE_STATUS");
 						data.put("nombre", Herramientas.getYo().nombre);
+						data.put("id", "a" + Herramientas.getYo().id);
 						push.setData(data);
 						push.sendInBackground();
 
@@ -129,26 +144,21 @@ public class ListadoUsuariosConectados extends Activity {
 
 						Herramientas.setEsperandoUsuario(true);
 
-						if (ejecturarEsperaPeticion == null) {
-							ejecturarEsperaPeticion = new EjecturarEsperaPeticion();
-						} else {
-							ejecturarEsperaPeticion.cancel(true);
-							ejecturarEsperaPeticion = new EjecturarEsperaPeticion();
-						}
-						ejecturarEsperaPeticion
-								.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+						ejecturarEsperaPeticion = new EjecturarEsperaPeticion();
+						ejecturarEsperaPeticion.execute();
 
 					} catch (Exception e) {
 						// TODO
 						e.printStackTrace();
 					}
+
 				} else if (((Usuarios) parent.getItemAtPosition(pos)).estado
 						.equals("offline")) {
 					Toast.makeText(ListadoUsuariosConectados.this,
 							getResources().getString(R.string.usuarioOffline),
 							Toast.LENGTH_SHORT).show();
 				}
-			}
+ 			}
 		});
 
 		Toast.makeText(ListadoUsuariosConectados.this,
@@ -242,21 +252,38 @@ public class ListadoUsuariosConectados extends Activity {
 		case R.id.opciones:
 			mostrarVentanaSelectorTiempo();
 			return true;
-		case R.id.compartir:
+		case R.id.compartirFacebook:
 			sendRequestDialog();
 			// showHelp();
+			return true;
+		case R.id.compartirOtros:
+			compartirOtros();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
+	private void compartirOtros() {
+		try {
+			Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+			shareIntent.setType("text/plain");
+			shareIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+					getResources().getString(R.string.invitar));
+			startActivity(Intent.createChooser(shareIntent, "MeetUs"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	private void mostrarVentanaSelectorTiempo() {
-		CharSequence colors[] = new CharSequence[] { "3 segundos",
-				"5 segundos", "10 segundos" };
+		CharSequence colors[] = new CharSequence[] { "3 " + getResources().getString(R.string.segundos),
+				"5 " + getResources().getString(R.string.segundos), "10 " + getResources().getString(R.string.segundos) };
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Tiempo de refresco del Mapa");
+		builder.setTitle(getResources().getString(R.string.tiempoRefresco));
 		builder.setItems(colors, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -390,62 +417,25 @@ public class ListadoUsuariosConectados extends Activity {
 		}
 	}
 
-	private class ejecutarJson extends AsyncTask<String, Void, Void> {
-
-		public ejecutarJson() {
-
-		}
-
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
-
-		/**
-		 * The system calls this to perform work in a worker thread and delivers
-		 * it the parameters given to AsyncTask.execute()
-		 */
-
-		protected Void doInBackground(String... valores) {
-			List listaUsuariosCompatibles = new ArrayList<Usuarios>();
-			String cadenaUsuarios = "";
-
-			valores[0] = valores[0].replace("(", "");
-			valores[0] = valores[0].replace(")", "");
-			valores[0] = valores[0].replace(" ", "");
-			valores[0] = valores[0].replace("+", "");
-			valores[0] = valores[0].replace("-", "");
-			valores[0] = valores[0].replace("#", "");
-			valores[0] = valores[0].replace("*", "");
-			resultJson = Herramientas.jsonLoad("a",
-					"http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=4&tlf="
-							+ valores[0]);
-			listaUsuariosCompatibles.add(Herramientas
-					.parsearUsuarios(resultJson));
-
-			Boolean exito = Herramientas.parsearPosicionTuya(resultJson);
-
-			return null;
-		}
-
-		protected void onPostExecute(Void result) {
-		}
-
-	}
-
 	private class EjecturarEsperaPeticion extends AsyncTask<String, Void, Void> {
 
 		private Builder ringProgressDialog;
-		private AlertDialog alert;
+		private AlertDialog alert = null;
 
 		public EjecturarEsperaPeticion() {
-
+			if (android.os.Build.VERSION.SDK_INT > 9) {
+				StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+						.permitAll().build();
+				StrictMode.setThreadPolicy(policy);
+			}
+			setCancelado(false);
 		}
 
+		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			// Cargamos el mensaje de espera
-			setCancelado(false);
-
+			
 			ringProgressDialog = new AlertDialog.Builder(
 					ListadoUsuariosConectados.this);
 
@@ -457,7 +447,9 @@ public class ListadoUsuariosConectados extends Activity {
 					getResources().getString(R.string.cancelar),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
+							// Enviar Cancelacion al otro usuario
+							mandarHeCancelado(Herramientas.getYo().id);
+							dialog.dismiss();
 							Herramientas.setEsperandoUsuario(false);
 							setCancelado(true);
 						}
@@ -474,7 +466,8 @@ public class ListadoUsuariosConectados extends Activity {
 		 */
 
 		protected Void doInBackground(String... valores) {
-			while (Herramientas.getEsperandoUsuario()) {
+			while (Herramientas.getEsperandoUsuario()
+					&& !Herramientas.getUsuarioNoAceptaInvitacion()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -487,24 +480,38 @@ public class ListadoUsuariosConectados extends Activity {
 		}
 
 		protected void onPostExecute(Void result) {
-			alert.cancel();
-			if (!cancelado) {
+			alert.dismiss();
+			if (!cancelado && !Herramientas.getUsuarioNoAceptaInvitacion()) {
+				Herramientas.setUsuarioNoAceptaInvitacion(false);
 				Herramientas.setEsperandoUsuario(false);
 				Intent i = new Intent(ListadoUsuariosConectados.this,
 						MainActivity.class);
 				startActivity(i);
 			}
+			Herramientas.setUsuarioNoAceptaInvitacion(false);
 		}
+		
 	}
 
 	private void inicializaParse() {
 
-		Parse.initialize(this, "PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
-				"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
+		if (!Herramientas.getParseInicializado()) {
+			Herramientas.setParseInicializado(true);
+			Parse.initialize(getApplicationContext(),
+					"PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
+					"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
 
-		if (PushService.getSubscriptions(getApplicationContext()).isEmpty()) {
-			PushService.subscribe(getApplicationContext(),
-					"a" + Herramientas.getYo().id, PreMapa.class);
+			// Subscribirse a su propio canal
+			if (!PushService.getSubscriptions(getApplicationContext()).isEmpty()) {
+				Iterator<String> iter = PushService.getSubscriptions(getApplicationContext()).iterator();
+				while (iter.hasNext()) {
+					String canal = iter.next();
+					PushService.unsubscribe(getApplicationContext(), canal);
+				}	
+			}
+			
+			PushService.subscribe(getApplicationContext(), "a"
+					+ Herramientas.getYo().id, PreMapa.class);
 		}
 
 	}
@@ -525,11 +532,43 @@ public class ListadoUsuariosConectados extends Activity {
 			finishapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(finishapp);
 			return true;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
+
+	}
+
+	// Se cancela que el otro usuario acepte la peticion
+	static void mandarHeCancelado(String id) {
+		JSONObject data = new JSONObject();
+		if (!Herramientas.getParseInicializado()) {
+			ParsePush push = new ParsePush();
+			push.setChannel("a" + Herramientas.getTu().id);
+			try {
+				data.put("action", "dotidapp.meetus.CANCELO");
+				data.put("id", "a" + Herramientas.getYo().id);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			push.setData(data);
+			push.sendInBackground();
+		}
+	}
+
+	// El usuario no acepta la invitacion
+	static void mandarNoAcepto() {
+		JSONObject data = new JSONObject();
+
+		ParsePush push = new ParsePush();
+		push.setChannel(Herramientas.getTu().id);
+		try {
+			data.put("action", "dotidapp.meetus.NO_ACEPTO");
+			data.put("id", Herramientas.getYo().id);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		push.setData(data);
+		push.sendInBackground();
 
 	}
 

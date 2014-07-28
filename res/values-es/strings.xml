@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">meetUs</string>
+    <string name="app_label">meetUs</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="gpsPosNoEncontrada">Posición no encontrada</string>
+    <string name="gpsCambioStatus">Estado del proveedor</string>
+    <string name="gpsProveedorOn">Proveedor Encendido</string>
+    <string name="gpsProveedorOff">Proveedor Off</string>
+    <string name="gpsNoConectado">GPS no conectado</string>
+    <string name="txtYo">Yo</string>
+    <string name="txtTu">Tú</string>
+    <string name="txtCargando">Cargando</string>
+    <string name="title_activity_listado_usuarios_conectados"></string>
+    <string name="login">Log In</string>
+    <string name="logOut">Log Out</string>
+    <string name="app_id">490295961103483</string>
+    <string name="title_activity_listar_usuarios">ListarUsuarios</string>
+    <string name="title_activity_cargar_lista_amigos">CargarListaAmigos</string>
+    <string name="title_activity_pre_mapa">PreMapa</string>
+    <string name="title_activity_inicio">Inicio</string>
+    <string name="title_activity_prueba_mapas">PruebaMapas</string>
+    <string name="title_activity_salir">Salir</string>
+    <string name="usuario_ausente">El usuario parece ausente, seguir esperando?</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+    <string name="Localizando">Localizando...</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="desconectado">El usuario se ha desconectado</string>
+    <string name="facebook_peticion_exito">Petición enviada!</string>
+    <string name="facebook_peticion_cancelada">Petición cancelada!</string>
+    <string name="conx_perdida">Conexión Gps perdida!</string>
+    <string name="no_internet">Conexión a Internet perdida!</string>
+    <string name="listaVacia">No se han encontrado amigos con meetUs, compártela y empieza a disfrutarla hoy mismo!</string>
+    <string name="invitar">Descárgate meetUs y estaremos en contacto! https://play.google.com/store/apps/details?id=dotidapp.meetus</string>
+    <string name="usuarioOffline">El usuario parece desconectado!</string>
+    <string name="comprobandoEstado">Buscando usuarios online...</string>
+    <string name="aceptarSolicitud">aceptar solicitud de </string>
+    <string name="esperandoRespuesta">Esperando respuesta...</string>
+    <string name="usuarioCancela">El usuario ha cancelado la petición</string>
+    <string name="usuarioNoAcepta">El usuario no ha aceptado la solicitud</string>
+    <string name="refrescarLista">Refrescar lista de amigos</string>
+    <string name="comparteFacebook">Compartir MeetUs en Facebook!</string>
+    <string name="comparteOtros">Compartir MeetUs otros!</string>
+    <string name="opciones">Opciones</string>
+    <string name="salir">Salir</string>
+    <string name="segundos">Segundos</string>    <string name="tiempoRefresco">Tiempo de refresco del Mapa</string>
+
+</resources>

@@ -1,11 +1,22 @@
 package dotidapp.meetus;
 
-import com.parse.Parse;
-import com.parse.PushService;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 
 import android.app.Application;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Base64;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.parse.Parse;
+import com.parse.PushService;
 
 public class iniciarParse extends Application {
 
@@ -13,25 +24,41 @@ public class iniciarParse extends Application {
 	public void onCreate() {
 
 		super.onCreate();
+		Boolean entrar = false;
+
+		// inicializa parse
+		Parse.initialize(this, "PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
+				"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
 
 		// Se recupera por si esta recien reiniciado
-		recuperarIdDesdeBBDD();
+		//recuperarIdDesdeBBDD();
+		Herramientas.setContexto(this);
 
-		if (Herramientas.comprobaciones(getApplicationContext())
-				&& !Herramientas.getYo().id.equals("")) {
+		if (!Herramientas.getYo().id.equals("")) {
+			// Cargo los usuarios
+			Herramientas.recuperarUsuariosBaseDeDatos();
+			Herramientas.recuperarIdDesdeBBDD();
+			entrar = true;
+		}
 
-			Herramientas.setParseInicializado(true);
-			Parse.initialize(getApplicationContext(),
-					"PuVIKboSUko0q8HRrlVJ0bDl8VYLHyK0ZKt1x2K5",
-					"W9qf2khJ8ZwCMOMypxRQU5YnOPuXoF31J7GXF16W");
-
+		if (Herramientas.comprobaciones(this)) {
 			// Subscribirse a su propio canal
-			if (PushService.getSubscriptions(getApplicationContext()).isEmpty()) {
-				PushService.subscribe(getApplicationContext(), "a"
-						+ Herramientas.getYo().id, PreMapa.class);
+			if (!PushService.getSubscriptions(this).isEmpty()) {
+				Iterator<String> iter = PushService.getSubscriptions(this)
+						.iterator();
+				while (iter.hasNext()) {
+					String canal = iter.next();
+					PushService.unsubscribe(this, canal);
+				}
 			}
 
-			Herramientas.setReiniciadoMovil(true);
+			if (entrar) {
+				// Lo suscribimos y avisamos que no se haga de nuevo en listadodeusuarios
+				Herramientas.setParseInicializado(true);
+				PushService.subscribe(this, "a" + Herramientas.getYo().id,
+						PreMapa.class);
+				Herramientas.setReiniciadoMovil(true);
+			}
 			// Avisamos que estamos conectados
 			new Thread(new Runnable() {
 

@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import dotidapp.meetus.R;
-import com.parse.ParsePush;
 
 @SuppressLint("ResourceAsColor")
 public class listadoUsuariosAdapter extends ArrayAdapter<Usuarios> {

@@ -56,6 +56,7 @@ public class Login extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_login);
+
 		facebook = new Facebook("490295961103483");
 		Herramientas.setFacebook(facebook);
 
@@ -76,6 +77,13 @@ public class Login extends Activity {
 					.permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
+		
+		Button button = (Button) findViewById(R.id.btnlogin);
+		button.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+		    	mostrarLogin();
+		    }
+		});
 
 		mostrarLogin();
 
@@ -129,8 +137,6 @@ public class Login extends Activity {
 
 						@Override
 						public void onCancel() {
-							mostrarLogin();
-
 						}
 					});
 		}

@@ -43,8 +43,8 @@ public class Inicio extends Activity {
 			Intent i = new Intent(this, Login.class);
 			esperarDosSegundos(i);
 		} else {
-			recuperarUsuariosBaseDeDatos();
-			recuperarIdDesdeBBDD();
+			Herramientas.recuperarUsuariosBaseDeDatos();
+			Herramientas.recuperarIdDesdeBBDD();
 			Intent i = new Intent(this,
 					ListadoUsuariosConectados.class);
 			esperarDosSegundos(i);
@@ -65,35 +65,7 @@ public class Inicio extends Activity {
 				ListadoUsuariosConectados.class);
 	}
 
-	private void recuperarIdDesdeBBDD() {
-		UsuariosSQLiteHelper usdbh = new UsuariosSQLiteHelper(this,
-				"baseDeDatos", null, 1);
-
-		SQLiteDatabase db = usdbh.getReadableDatabase();
-
-		// Si hemos abierto correctamente la base de datos
-		if (db != null) {
-			// Consultamos el valor Id del usuario
-
-			Cursor c = db.rawQuery("SELECT valor from Configuracion where dato='idUsuario'", null);
-			// Nos aseguramos de que existe al menos un registro
-			if (c.moveToFirst()) {
-				do {
-					Herramientas.getYo().setId(c.getString(0));
-				} while (c.moveToNext());
-			}
-
-			c = db.rawQuery("SELECT valor from Configuracion where dato='nombre'", null);
-			// Nos aseguramos de que existe al menos un registro
-			if (c.moveToFirst()) {
-				do {
-					Herramientas.getYo().setNombre(c.getString(0));
-				} while (c.moveToNext());
-			}
-			db.close();
-		}
-		
-	}
+	
 
 	//Tiempo que se muestra al inicio el logo
 	private void esperarDosSegundos(final Intent i) {
@@ -131,33 +103,6 @@ public class Inicio extends Activity {
 			}).start();
 			
 		}
-
-	private void recuperarUsuariosBaseDeDatos() {
-		UsuariosSQLiteHelper usdbh = new UsuariosSQLiteHelper(this,
-				"baseDeDatos", null, 1);
-
-		SQLiteDatabase db = usdbh.getReadableDatabase();
-
-		String valorEsLaPrimeraVez = "n";
-
-		// Si hemos abierto correctamente la base de datos
-		if (db != null) {
-			// Consultamos el valor esLaPrimeraVez
-
-			Cursor c = db.rawQuery("SELECT * from Amigos", null);
-			// Nos aseguramos de que existe al menos un registro
-			if (c.moveToFirst()) {
-				Herramientas.getListaUsuarios().clear();
-				do {
-					byte[] img = c.getBlob(c.getColumnIndex("foto"));
-					Usuarios usuario = new Usuarios(c.getString(1), c.getString(0), BitmapFactory.decodeByteArray(img, 0, img.length));
-					Herramientas.addUsuario(usuario);
-				} while (c.moveToNext());
-			}
-			db.close();
-		}
-
-	}
 
 
 	private Boolean comprobarSiEsLaPrimeraVez() {

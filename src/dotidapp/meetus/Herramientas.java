@@ -34,6 +34,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -45,8 +46,8 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import dotidapp.meetus.R;
+
 import com.facebook.android.Facebook;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -64,7 +65,6 @@ public class Herramientas {
 	private static Usuarios yo = new Usuarios("", "");
 	private static Usuarios tu = new Usuarios("", "");
 	private static ProgressDialog ringProgressDialog;
-	private static Builder ringProgressDialogMapa;
 	private static Long tiempoInicio;
 	private static Boolean mensajeActivo = false;
 	private static Boolean elUsuarioEstaActivo = false;
@@ -75,6 +75,10 @@ public class Herramientas {
 	private static Boolean esperandoUsuario = false;
 	private static Boolean parseInicializado = false;
 	private static Boolean reiniciadoMovil = false;
+	private static Boolean elOtroUsuarioCancela = false;
+	private static Boolean alertaActiva  = false;
+	private static Boolean usuarioNoAceptaInvitacion  = false;
+	private static Boolean usuarioCancelaLocalizando  = false;
 	
 	public static Boolean getEsperandoUsuario() {
 		return esperandoUsuario;
@@ -143,6 +147,63 @@ public class Herramientas {
 		db.close();
 
 	}
+	
+	public static void recuperarUsuariosBaseDeDatos() {
+		UsuariosSQLiteHelper usdbh = new UsuariosSQLiteHelper(contexto,
+				"baseDeDatos", null, 1);
+
+		SQLiteDatabase db = usdbh.getReadableDatabase();
+
+		String valorEsLaPrimeraVez = "n";
+
+		// Si hemos abierto correctamente la base de datos
+		if (db != null) {
+			// Consultamos el valor esLaPrimeraVez
+
+			Cursor c = db.rawQuery("SELECT * from Amigos", null);
+			// Nos aseguramos de que existe al menos un registro
+			if (c.moveToFirst()) {
+				Herramientas.getListaUsuarios().clear();
+				do {
+					byte[] img = c.getBlob(c.getColumnIndex("foto"));
+					Usuarios usuario = new Usuarios(c.getString(1), c.getString(0), BitmapFactory.decodeByteArray(img, 0, img.length));
+					Herramientas.addUsuario(usuario);
+				} while (c.moveToNext());
+			}
+			db.close();
+		}
+
+	}
+	
+	public static void recuperarIdDesdeBBDD() {
+		UsuariosSQLiteHelper usdbh = new UsuariosSQLiteHelper(contexto,
+				"baseDeDatos", null, 1);
+
+		SQLiteDatabase db = usdbh.getReadableDatabase();
+
+		// Si hemos abierto correctamente la base de datos
+		if (db != null) {
+			// Consultamos el valor Id del usuario
+
+			Cursor c = db.rawQuery("SELECT valor from Configuracion where dato='idUsuario'", null);
+			// Nos aseguramos de que existe al menos un registro
+			if (c.moveToFirst()) {
+				do {
+					Herramientas.getYo().setId(c.getString(0));
+				} while (c.moveToNext());
+			}
+
+			c = db.rawQuery("SELECT valor from Configuracion where dato='nombre'", null);
+			// Nos aseguramos de que existe al menos un registro
+			if (c.moveToFirst()) {
+				do {
+					Herramientas.getYo().setNombre(c.getString(0));
+				} while (c.moveToNext());
+			}
+			db.close();
+		}
+		
+	}
 
 	public static void setEncontradoYo(boolean encontradoYo) {
 		Herramientas.encontradoYo = encontradoYo;
@@ -185,8 +246,8 @@ public class Herramientas {
 		}).start();
 	}
 
-	public static void pararProgressDialogMapa(final Context contextoDialogo) {
-		if (!hiloActualizaPos.isAlive()) {
+	public static void pararProgressDialogMapa() {
+		if (hiloActualizaPos.isAlive()) {
 			hiloActualizaPos.interrupt();
 		}
 	}
@@ -204,6 +265,21 @@ public class Herramientas {
 		push.setChannel("a" + id);
 		try {
 			data.put("action", "dotidapp.meetus.PREGUNTA_ESTADO");
+			data.put("id", Herramientas.getYo().id);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		push.setData(data);
+		push.sendInBackground();
+
+	}
+	
+	static void mandarMensajeSalirLocalizando() {
+		JSONObject data = new JSONObject();
+		ParsePush push = new ParsePush();
+		push.setChannel("a" + getTu().id);
+		try {
+			data.put("action", "dotidapp.meetus.CANCELO_LOCALIZANDO");
 			data.put("id", Herramientas.getYo().id);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -260,7 +336,7 @@ public class Herramientas {
 	static void mandarUsuarioAcepta() {
 		JSONObject data = new JSONObject();
 		ParsePush push = new ParsePush();
-		push.setChannel("a" + Herramientas.getTu().id);
+		push.setChannel(Herramientas.getTu().id);
 		try {
 			data.put("action", "dotidapp.meetus.ACEPTA");
 			data.put("id", Herramientas.getYo().id);
@@ -467,11 +543,13 @@ public class Herramientas {
 							&& elUsuarioEstaActivo) {
 						((MainActivity) contexto).runOnUiThread(new Runnable() {
 							public void run() {
+								salir();
 								Toast.makeText(
 										contexto,
 										contexto.getResources().getString(
 												R.string.desconectado),
 										Toast.LENGTH_LONG).show();
+								
 								Intent i = new Intent(contexto,
 										ListadoUsuariosConectados.class);
 								contexto.startActivity(i);
@@ -575,8 +653,15 @@ public class Herramientas {
 	}
 
 	public static void borrarPosicion() {
+		//Borro pos de Yo
 		String cadena = "http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=3&idUsuario="
 				+ Herramientas.getYo().id + "&longitud=0" + "&latitud=" + "0";
+
+		resultJson = Herramientas.jsonLoad(Herramientas.getYo().id, cadena);
+		
+		//Borro pos de tu
+		cadena = "http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=3&idUsuario="
+				+ Herramientas.getTu().id + "&longitud=0" + "&latitud=" + "0";
 
 		resultJson = Herramientas.jsonLoad(Herramientas.getYo().id, cadena);
 	}
@@ -791,7 +876,7 @@ public class Herramientas {
 								.jsonLoad(
 										"",
 										"http://s425938729.mialojamiento.es/webs/meetUs/wsUsuarios.php?opcion=2&idUsuario="
-												+ Herramientas.getTu().id);
+												+ Herramientas.getTu().id.replace("a", ""));
 						Boolean exito = Herramientas
 								.parsearPosicionTuya(resultJson);
 
@@ -834,7 +919,8 @@ public class Herramientas {
 	private static class ejecutarSnipperMapa extends
 			AsyncTask<Void, Void, Void> {
 
-		private AlertDialog alert;
+		private AlertDialog alert = null;
+		private Builder ringProgressDialogMapa;
 
 		public ejecutarSnipperMapa() {
 			if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -859,6 +945,8 @@ public class Herramientas {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							dialog.cancel();
+							salir();
+							mandarMensajeSalirLocalizando();
 							Intent i = new Intent(contexto,
 									ListadoUsuariosConectados.class);
 							contexto.startActivity(i);
@@ -873,7 +961,7 @@ public class Herramientas {
 
 		@Override
 		protected Void doInBackground(Void... accion) {
-			while (!encontradoTu || !encontradoYo) {
+			while (!(encontradoTu && encontradoYo) && !Herramientas.getUsuarioCancelaLocalizando() ) {
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
@@ -882,15 +970,31 @@ public class Herramientas {
 				}
 				int a = 0;
 			}
-
+			
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			alert.cancel();
+			if (Herramientas.getUsuarioCancelaLocalizando())
+			{
+				salir();
+				setUsuarioCancelaLocalizando(false);
+				Intent i = new Intent(getContexto(),
+						ListadoUsuariosConectados.class);
+				getContexto().startActivity(i);
+			}
+			
 		}
 
+	}
+	
+	public static void salir() {
+		PosicionMia.pararGps();
+		Herramientas.pararProgressDialogMapa();
+		Herramientas.borrarPosicion();
+		Herramientas.setElUsuarioEstaActivo(false);
 	}
 
 	public static Boolean comprobaciones(Context contexto) {
@@ -939,5 +1043,39 @@ public class Herramientas {
 
 	public static void setReiniciadoMovil(Boolean reiniciadoMovil) {
 		Herramientas.reiniciadoMovil = reiniciadoMovil;
+	}
+
+	public static Boolean getElOtroUsuarioCancela() {
+		return elOtroUsuarioCancela;
+	}
+
+	public static void setElOtroUsuarioCancela(Boolean elOtroUsuarioCancela) {
+		Herramientas.elOtroUsuarioCancela = elOtroUsuarioCancela;
+	}
+
+	public static Boolean getAlertaActiva() {
+		return alertaActiva;
+	}
+
+	public static void setAlertaActiva(Boolean alertaActiva) {
+		Herramientas.alertaActiva = alertaActiva;
+	}
+
+	public static Boolean getUsuarioNoAceptaInvitacion() {
+		return usuarioNoAceptaInvitacion;
+	}
+
+	public static void setUsuarioNoAceptaInvitacion(
+			Boolean usuarioNoAceptaInvitacion) {
+		Herramientas.usuarioNoAceptaInvitacion = usuarioNoAceptaInvitacion;
+	}
+
+	public static Boolean getUsuarioCancelaLocalizando() {
+		return usuarioCancelaLocalizando;
+	}
+
+	public static void setUsuarioCancelaLocalizando(
+			Boolean usuarioCancelaLocalizando) {
+		Herramientas.usuarioCancelaLocalizando = usuarioCancelaLocalizando;
 	}
 }
